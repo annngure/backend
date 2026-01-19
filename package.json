@@ -3,7 +3,7 @@
     "main": "backend.js",
     "version" : "1.0.0",
     "type": "module",
-    "dependancies"{
+    "dependancies":{
       "axios": "^1.13.2",
       "express": "^5.2.1",
       "malta": "^4.1.42",
