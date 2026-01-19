@@ -6,6 +6,7 @@
   "dependencies": {
     "axios": "^1.13.2",
     "express": "^5.2.1",
+    "helmet": "^8.1.0",
     "malta": "^4.1.42",
     "node": "^25.3.0"
   },
