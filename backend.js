@@ -1,5 +1,4 @@
-/** Lightweight Express backend that matches the register.js / index.js / dashboard.js
- *  frontend patterns (REST endpoints: /register, /login, /employees, /alerts, /health).
+/** Lightweight Express backend that matches the register.js / index.js / dashboard.js*  frontend patterns (REST endpoints: /register, /login, /employees, /alerts, /health).
  * - If FIREBASE_ADMIN service account is provided (env FIREBASE_ADMIN_PATH), the server
  *   will try to use Firebase Admin for auth + Firestore.
  * - Otherwise it falls back to a simple file-backed JSON store at ./data/db.json.
