@@ -72,12 +72,11 @@ function makeId(prefix = "") {
   return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
-// Health
-app.get("/health", (req, res) => res.json({ status: "ok", ts: new Date().toISOString() }));
+
 
 // Register (used by register.js)
 app.post("/register", authLimiter, async (req, res) => {
-  const { name, email, password, role = "truck-driver", empId } = req.body || {};
+  const { name, email, password, role = "truck-driver" && "deport-employee" , empId } = req.body || {};
   const errors = [];
   if (!name) errors.push("name required");
   if (!email) errors.push("email required");
@@ -155,7 +154,7 @@ app.get("/employees", async (req, res) => {
   }
 });
 
-// Create employee (admin UI)
+// Create employee (admin UI)---check if frontend contain admin UI before using
 app.post("/employees", async (req, res) => {
   const { name, email, role = "employee", empId } = req.body || {};
   if (!name || !email || !empId) return res.status(400).json({ success: false, message: "name,email,empId required" });
