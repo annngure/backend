@@ -15,7 +15,13 @@ import admin from "firebase-admin";
 import fs from "fs";
 import path from "path";
 
+
+const express = require("express");
+const http = require('http');
+const {Server}= require('socket.io');
+
 const app = express();
+const server =http.createServer(app);
 
 // Initialize Firebase Admin SDK
 const serviceAccountPath = process.env.FIREBASE_ADMIN_PATH || 
@@ -38,6 +44,16 @@ try {
 } catch (err) {
   console.warn("⚠ Firebase initialization error:", err.message);
 }
+
+//Intialize sockets.io with cors 
+const io = new Server(server,{
+  cors:{
+    origin :"https://gas-safety-guide.web.app" ,//front end url
+    methods:["GET","POST"]
+  }
+
+});
+
 
 // Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -74,13 +90,12 @@ app.post("/register", authLimiter, async (req, res) => {
       userId,
       name,
       email: email.toLowerCase(),
-      role,
+      shiftDuration: req.body.shiftDuration || 0,
       empId,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      lastLogin: null,
       clockIn: null,
       clockOut: null,
-      status: "safe"
+      incidentHandled: 0,
     }, { merge: true });
 
     return res.status(201).json({ 
@@ -96,7 +111,7 @@ app.post("/register", authLimiter, async (req, res) => {
 
 // POST /login - Sync login from frontend
 app.post("/login", authLimiter, async (req, res) => {
-  const { userId, email, role, lastLogin } = req.body || {};
+  const { userId, email } = req.body || {};
   
   if (!userId || !email) {
     return res.status(400).json({ success: false, message: "Missing required fields" });
@@ -167,7 +182,7 @@ app.get("/alerts", async (req, res) => {
 
 // POST /alerts - Create alert (called by frontend)
 app.post("/alerts", async (req, res) => {
-  const { userId, employeeName, location, status } = req.body || {};
+  const { userId, gasStatus,createdAt, location, status,resolvedAt } = req.body || {};
   
   if (!userId) {
     return res.status(400).json({ success: false, message: "userId required" });
@@ -180,11 +195,12 @@ app.post("/alerts", async (req, res) => {
 
     const alert = {
       userId,
-      employeeName: employeeName || "Unknown",
-      location: location || "Unknown",
-      status: status || "Gas Leak Detected",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      resolvedAt: null
+      gasStatus: gasStatus || "Gas Leak Detected",
+      createdAt: createdAt || admin.firestore.FieldValue.serverTimestamp(),
+      location: location ||"Unknown",
+      status: status || "unresolved",
+      resolvedAt: resolvedAt || admin.firestore.FieldValue.serverTimestamp(),
+
     };
 
     const docRef = await db.collection("alerts").add(alert);
@@ -228,15 +244,7 @@ app.post("/logout", (req, res) => {
   return res.json({ success: true, message: "Logged out" });
 });
 
-// GET /health - Health check
-app.get("/health", (req, res) => {
-  return res.json({ 
-    success: true,
-    status: "running",
-    firestore: db ? "connected" : "disconnected",
-    timestamp: new Date().toISOString()
-  });
-});
+
 
 // Generic error handler
 app.use((err, req, res, next) => {
@@ -246,6 +254,6 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`✓ Server running on http://localhost:${PORT}`);
 });
