@@ -6,16 +6,16 @@
  * Install: npm i express helmet cors cookie-parser express-rate-limit firebase-admin
  */
 
-const express = require("express");
-const helmet = require("helmet");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const rateLimit = require("express-rate-limit");
-const admin = require("firebase-admin");
-const fs = require("fs");
-const path = require("path");
-const http = require('http');
-const {Server}= require('socket.io');
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import rateLimit from "express-rate-limit";
+import admin from "firebase-admin";
+import fs from "fs";
+import path from "path";
+import http from 'http';
+import { Server } from 'socket.io';
 
 const app = express();
 const server =http.createServer(app);
